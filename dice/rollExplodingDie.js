@@ -7,14 +7,14 @@ var dice = require('./modules.js')
   result.diceParams = diceParams
   var roll = dice.rollDie(numSides)
   var total = 0
-  if (roll == 1){
+  if (roll == 1 && diceParams.explodeDown == true){
     total = 1
     var downRoll = rollExplodingDie(diceParams)
     total = total - downRoll.total
     result.rolls.push(roll)
     result.rolls.push(downRoll)
   }
-  else if (roll == numSides) {
+  else if (roll == numSides && diceParams.explodeUp == true) {
     total = roll
     var upRoll = rollExplodingDie(diceParams)
     total = total + upRoll.total

@@ -24,9 +24,16 @@ var dice = require('./modules.js')
     }
   }
 
-  if (diceParams.diceType == "e"){
-    if (diceParams.numSides < 3){
-      return "Non-smooth exploding dice must have more than two sides."
+  if (diceParams.diceType == "e" || diceParams.diceType == "ed" || diceParams.diceType == "eu"){
+    if (diceParams.explodeUp ==  true && diceParams.explodeDown == true && diceParams.numSides < 3){
+      diceParams.isValid = false
+      result.rolls = "Non-smooth bi-directional exploding dice (ie dice type \"e\") must have more than two sides."
+      return result
+    }
+    if (diceParams.numSides < 2){
+      diceParams.isValid = false
+      result.rolls = "Non-smooth uni-directional exploding (ie dice type \"ed\" or \"eu\") dice must have more than one side."
+      return result
     }
     for (var i = 0; i < diceParams.numDice; i++){
       var exParams = new dice.diceParameters(diceParams.diceExpression)
@@ -44,30 +51,27 @@ var dice = require('./modules.js')
       
     }
   }
-
-  if (diceParams.diceType == "eu" || diceParams.diceType == "su") {
-    for (var i = 0; i < diceParams.numDice; i++) {
-      if (diceParams.isThreshold) {
-        var tRoll = dice.rollExplodingUpDie(diceParams.numSides, diceParams.isSmoothExploding) + diceParams.modifier;
-        if (tRoll > diceParams.threshold) {
-          total += 1;
-        }
-      } else {
-        total = total + dice.rollExplodingUpDie(diceParams.numSides, diceParams.isSmoothExploding);
-      }
+  
+  if (diceParams.diceType == "s" || diceParams.diceType == "sd" || diceParams.diceType == "su"){
+    if (diceParams.explodeUp ==  true && diceParams.explodeDown == true && diceParams.numSides < 1){
+      diceParams.isValid = false
+      result.rolls = "Smooth exploding dice (ie dice type \"s\", \"sd\", or \"su\") must have more than one side."
+      return result
     }
-  }
-
-  if (diceParams.diceType == "ed" || diceParams.diceType == "sd") {
-    for (var i = 0; i < diceParams.numDice; i++) {
-      if (diceParams.isThreshold) {
-        var tRoll = dice.rollExplodingDownDie(diceParams.numSides, diceParams.isSmoothExploding) + diceParams.modifier;
-        if (tRoll > diceParams.threshold) {
-          total += 1;
+    for (var i = 0; i < diceParams.numDice; i++){
+      var exParams = new dice.diceParameters(diceParams.diceExpression)
+      exParams.isThreshold = false
+      var explodeRoll = dice.rollSmoothExplodingDie(exParams)
+      if (diceParams.isThreshold){
+        if (explodeRoll.total + diceParams.modifier >= diceParams.threshold){
+          total += 1
         }
-      } else {
-        total = total + dice.rollExplodingDownDie(diceParams.numSides, diceParams.isSmoothExploding);
       }
+      result.rolls.push(explodeRoll)
+      if (!diceParams.isThreshold){
+        total = total + explodeRoll.total
+      }
+      
     }
   }
 
