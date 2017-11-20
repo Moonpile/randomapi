@@ -10,6 +10,8 @@ function diceParameters(diceExpression){
   this.errorMessage = "";
   this.isValid = false;
   this.isSmoothExploding = false;
+  this.explodeUp = false;
+  this.explodeDown = false;
   this.floor = 0;
   this.enforceFloor = false;
   this.ceiling = 0;
@@ -34,6 +36,19 @@ function diceParameters(diceExpression){
   if (match[4] != undefined) {
     this.modifier = parseInt(match[4].replace("+", ""));
   }
+  
+  if (this.diceType == "e" || this.diceType == "s") {
+    this.explodeUp = true
+    this.explodeDown = true
+  }    
+      
+  if (this.diceType == "eu" || this.diceType == "su") {
+    this.explodeUp = true
+  }    
+  
+  if (this.diceType == "ed" || this.diceType == "sd") {
+    this.explodeDown = true
+  }        
 
   var enforceFloor = false;
   if (match[5] != undefined) {
