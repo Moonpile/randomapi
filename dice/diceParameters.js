@@ -1,5 +1,5 @@
 function diceParameters(diceExpression){
-    var myRegex = /^(\d+)?([dDeEsS]|eu|EU|ed|ED|su|SU|sd|SD)(\d+)([+-]\d+)?([fF]([-]?\d+))?([cC]([-]?\d+))?([tT]([-]?\d+))?$/;
+    var myRegex = /^(\d+)?([dDeEsS]|eu|EU|ed|ED|su|SU|sd|SD)(\d+)([+-]\d+)?([fF]([-]?\d+))?([cC]([-]?\d+))?([tT]([-]?\d+))?(([lLhH])([-]?\d+))?$/;
   var match = myRegex.exec(diceExpression);
  
   this.diceExpression = diceExpression
@@ -18,6 +18,8 @@ function diceParameters(diceExpression){
   this.enforceCeiling = false;
   this.threshold = 0;
   this.isThreshold = false;
+  this.drop = "no";
+  this.dropnum = 0;
 
   if (match === null) {
     this.errorMessage = "Bad Dice Expression '" + diceExpression + "'";
@@ -56,18 +58,30 @@ function diceParameters(diceExpression){
     this.enforceFloor = true;
   }
 
-  var ceiling = 0;
   var enforceCeiling = false;
   if (match[7] != undefined) {
     this.ceiling = parseInt(match[8]);
     this.enforceCeiling = true;
   }
 
-  var threshold = 0;
-  var isThreshold = false;
   if (match[9] != undefined) {
     this.threshold = parseInt(match[10]);
     this.isThreshold = true;
+  }
+      
+  var drop = "no";
+  var dropnum = 0;
+  if (match[12] != undefined) {
+        
+    if (match[12].toLowerCase() == "l") {
+      this.drop = "lowest"; 
+    }
+    if (match[12].toLowerCase() == "h") {
+      this.drop = "highest";
+    }
+    if (match[13] != undefined) {
+      this.dropnum = parseInt(match[13]);
+    }
   }
   
   this.isValid = true;

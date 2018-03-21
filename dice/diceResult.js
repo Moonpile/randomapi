@@ -1,13 +1,20 @@
 function diceResult(){
 var dice = require('./modules.js')
-  this.total = 0
-  this.rolls = []
-  this.diceParams
-  this.rolls
+  this.total = 0;
+  this.dropped = false;
+  this.rolls = [];
+  this.diceParams;
+  this.rolls;
   this.rollToString = function(){
-      var individualrolls = '('
+      console.log("roll to string");
+      var individualrolls = '(';
+
       for (let roll of this.rolls)
         {
+          if (roll.dropped == true) {
+            individualrolls += 'dropped '; 
+            console.log("dropped to string");
+          }          
           //console.log(roll)
           if (isNaN(roll) && roll.rolls != undefined){
             if (roll.rolls.length > 1) {

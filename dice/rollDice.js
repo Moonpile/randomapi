@@ -8,6 +8,16 @@ var dice = require('./modules.js')
   var result =  new dice.diceResult()
   result.diceParams = diceParams
   
+  if (diceParams.dropnum > diceParams.numDice) {
+    result.roll = "Cannot drop more dice than you roll.";
+    return result;
+  }
+  
+  if (diceParams.isThreshold && diceParams.drop != "no") {
+    result.roll = "Cannot drop dice in threshold roll.";
+    return result;
+  }
+  
   if (diceParams.diceType == "d") {
     for (var i = 0; i < diceParams.numDice; i++) {
       if (diceParams.isThreshold) {
@@ -18,7 +28,9 @@ var dice = require('./modules.js')
         result.rolls.push(tRoll)
       } else {
         var roll = dice.rollDie(diceParams.numSides)
-        result.rolls.push(roll)
+        var straightRoll = new dice.diceResult();
+        straightRoll.total = roll;
+        result.rolls.push(straightRoll)
         total = total + roll
       }
     }
@@ -92,9 +104,51 @@ var dice = require('./modules.js')
       result.rolls.push(' ceilinged to ' + diceParams.ceiling)
     }
   }
- 
-  result.total = total
-  result.rolls = result.rollToString()
+  
+  if (diceParams.drop == "lowest") {
+     for (var i = 0; i < diceParams.dropnum; i++)
+     {
+       console.log("dropping die " + (i + 1) +  " of " + diceParams.dropnum);
+       var minVal = 999999;
+       var lastMinIndex = -1;
+       console.log("result.rolls.length: "  + result.rolls.length);
+       for (var j = 0; j < result.rolls.length; j++) {
+          if (result.rolls[j].dropped == false && result.rolls[j].total < minVal) {
+             minVal =  result.rolls[j].total;
+             lastMinIndex = j;
+             console.log("new min: " + minVal);
+          }
+       }
+       console.log("dropping last die with value of: " + minVal);
+       result.rolls[lastMinIndex].dropped = true;
+       total -= result.rolls[lastMinIndex].total;
+     }
+  }
+  
+    if (diceParams.drop == "highest") {
+     for (var i = 0; i < diceParams.dropnum; i++)
+     {
+       console.log("dropping die " + (i + 1) +  " of " + diceParams.dropnum);
+       var maxVal = -999999;
+       var lastMaxIndex = -1;
+       console.log("result.rolls.length: "  + result.rolls.length);
+       for (var j = 0; j < result.rolls.length; j++) {
+          if (result.rolls[j].dropped == false && result.rolls[j].total > maxVal) {
+             maxVal =  result.rolls[j].total;
+             lastMaxIndex = j;
+             console.log("new min: " + maxVal);
+          }
+       }
+       console.log("dropping last die with value of: " + maxVal);
+       result.rolls[lastMaxIndex].dropped = true;
+       total -= result.rolls[lastMaxIndex].total;
+     }
+    }
+  
+  //console.log(result);
+  
+  result.total = total;
+  result.rolls = result.rollToString();
   return result;
 }
 
